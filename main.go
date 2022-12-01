@@ -1,5 +1,7 @@
 package main
 
+import "valverdethiago/car-factory-threads/factory"
+
 const carsAmount = 100
 
 func main() {
