@@ -4,8 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"time"
-
-	".main.go/vehicle"
+	"valverdethiago/car-factory-threads/vehicle"
 )
 
 type AssemblySpot struct {
@@ -25,7 +24,7 @@ func (s *AssemblySpot) GetAssembledLogs() string {
 	return s.assemblyLog
 }
 
-//hint: improve this function to execute this process concurrenlty
+// hint: improve this function to execute this process concurrenlty
 func (s *AssemblySpot) AssembleVehicle() (*vehicle.Car, error) {
 	if s.vehicleToAssemble == nil {
 		return nil, errors.New("no vehicle set to start assembling")
