@@ -3,6 +3,7 @@ package assemblyspot
 import (
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 	"valverdethiago/car-factory-threads/vehicle"
 )
@@ -30,15 +31,25 @@ func (s *AssemblySpot) AssembleVehicle() (*vehicle.Car, error) {
 		return nil, errors.New("no vehicle set to start assembling")
 	}
 
-	s.assembleChassis()
-	s.assembleTires()
-	s.assembleEngine()
-	s.assembleElectronics()
-	s.assembleDash()
-	s.assembleSeats()
-	s.assembleWindows()
+	wg := &sync.WaitGroup{}
+	assemble(wg, s.assembleChassis)
+	assemble(wg, s.assembleTires)
+	assemble(wg, s.assembleEngine)
+	assemble(wg, s.assembleElectronics)
+	assemble(wg, s.assembleDash)
+	assemble(wg, s.assembleSeats)
+	assemble(wg, s.assembleWindows)
+	wg.Wait()
 
 	return s.vehicleToAssemble, nil
+}
+
+func assemble(wg *sync.WaitGroup, execution func()) {
+	wg.Add(1)
+	go func(wg *sync.WaitGroup) {
+		defer wg.Done()
+		execution()
+	}(wg)
 }
 
 func (s *AssemblySpot) assembleChassis() {
