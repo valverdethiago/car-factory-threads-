@@ -3,9 +3,9 @@ package assemblyspot
 import (
 	"errors"
 	"fmt"
+	"sync"
 	"time"
-
-	".main.go/vehicle"
+	"valverdethiago/car-factory-threads/vehicle"
 )
 
 type AssemblySpot struct {
@@ -25,21 +25,31 @@ func (s *AssemblySpot) GetAssembledLogs() string {
 	return s.assemblyLog
 }
 
-//hint: improve this function to execute this process concurrenlty
+// hint: improve this function to execute this process concurrenlty
 func (s *AssemblySpot) AssembleVehicle() (*vehicle.Car, error) {
 	if s.vehicleToAssemble == nil {
 		return nil, errors.New("no vehicle set to start assembling")
 	}
 
-	s.assembleChassis()
-	s.assembleTires()
-	s.assembleEngine()
-	s.assembleElectronics()
-	s.assembleDash()
-	s.assembleSeats()
-	s.assembleWindows()
+	wg := &sync.WaitGroup{}
+	assemble(wg, s.assembleChassis)
+	assemble(wg, s.assembleTires)
+	assemble(wg, s.assembleEngine)
+	assemble(wg, s.assembleElectronics)
+	assemble(wg, s.assembleDash)
+	assemble(wg, s.assembleSeats)
+	assemble(wg, s.assembleWindows)
+	wg.Wait()
 
 	return s.vehicleToAssemble, nil
+}
+
+func assemble(wg *sync.WaitGroup, execution func()) {
+	wg.Add(1)
+	go func(wg *sync.WaitGroup) {
+		defer wg.Done()
+		execution()
+	}(wg)
 }
 
 func (s *AssemblySpot) assembleChassis() {
